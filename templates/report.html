@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}신고하기{% endblock %}
+{% block content %}
+<h2>신고하기</h2>
+<p class="muted">
+  신고가 {{ report_threshold }}건 이상 누적되면 해당 상품은 자동 차단되고,
+  사용자는 휴면 계정으로 전환됩니다.
+</p>
+
+<form method="post" action="{{ url_for('report') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  {# 베이스 코드는 "사용자ID 또는 상품ID"를 한 칸에 받아 유저와 상품을
+     구분하지 못했다. 대상 종류를 명시적으로 받는다. #}
+  <label for="target_type">신고 대상 종류</label>
+  <select id="target_type" name="target_type" required>
+    <option value="">선택하세요</option>
+    <option value="user" {% if target_type == 'user' %}selected{% endif %}>사용자</option>
+    <option value="product" {% if target_type == 'product' %}selected{% endif %}>상품</option>
+  </select>
+
+  <label for="target_id">대상 ID</label>
+  <input type="text" id="target_id" name="target_id" required maxlength="36"
+         value="{{ target_id }}">
+  <p class="muted">
+    사용자 프로필이나 상품 상세 페이지의 "신고하기" 링크를 이용하면 자동으로 채워집니다.
+  </p>
+
+  <label for="reason">신고 사유</label>
+  <textarea id="reason" name="reason" rows="4" required maxlength="500"
+            placeholder="구체적인 사유를 작성해주세요"></textarea>
+
+  <button type="submit" class="danger">신고 접수</button>
+</form>
+{% endblock %}

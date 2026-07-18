@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ target['username'] }}{% endblock %}
+{% block content %}
+<h2>{{ target['username'] }}</h2>
+
+{# [보안] 프로필 페이지에 잔액이나 이메일 같은 개인정보를 노출하지 않는다.
+   공개 정보(사용자명, 소개글, 가입일)만 보여준다. #}
+<table>
+  <tr><th>가입일</th><td>{{ target['created_at'] }}</td></tr>
+  <tr><th>상태</th>
+    <td><span class="status status-{{ target['status'] }}">{{ target['status'] }}</span></td>
+  </tr>
+</table>
+
+{% if target['bio'] %}
+  <h3>소개글</h3>
+  {# Jinja2 자동 이스케이프가 적용된다. 소개글에 <script>를 넣어도
+     텍스트로 표시될 뿐 실행되지 않는다. #}
+  <p>{{ target['bio'] }}</p>
+{% endif %}
+
+{% if target['id'] != current_user['id'] %}
+  <p>
+    <a href="{{ url_for('direct_chat', user_id=target['id']) }}">1:1 채팅</a> ·
+    <a href="{{ url_for('report', target_type='user', target_id=target['id']) }}">신고하기</a>
+  </p>
+{% endif %}
+
+<h3>판매 중인 상품</h3>
+{% if products %}
+  <ul>
+    {% for product in products %}
+      <li>
+        <a href="{{ url_for('view_product', product_id=product['id']) }}">{{ product['title'] }}</a>
+        <span class="price">{{ '{:,}'.format(product['price']) }}원</span>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="muted">판매 중인 상품이 없습니다.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}회원가입{% endblock %}
+{% block content %}
+<h2>회원가입</h2>
+<form method="post">
+  {# [보안 수정 #4] CSRF 토큰. 이게 없으면 공격자 사이트가 사용자 몰래
+     이 폼을 대신 제출할 수 있다. 모든 POST 폼에 반드시 넣는다. #}
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="username">사용자명</label>
+  {# maxlength/pattern은 사용자 편의를 위한 것일 뿐 보안 장치가 아니다.
+     실제 방어는 서버의 validate_username()이 한다. #}
+  <input type="text" id="username" name="username" required
+         minlength="3" maxlength="20" pattern="[A-Za-z0-9_]+"
+         autocomplete="username">
+  <p class="muted">영문/숫자/밑줄 3~20자</p>
+
+  <label for="password">비밀번호</label>
+  <input type="password" id="password" name="password" required
+         minlength="8" autocomplete="new-password">
+  <p class="muted">최소 8자</p>
+
+  <button type="submit">회원가입</button>
+</form>
+<p class="muted">이미 계정이 있으신가요? <a href="{{ url_for('login') }}">로그인</a></p>
+{% endblock %}

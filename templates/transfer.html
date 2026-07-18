@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}송금{% endblock %}
+{% block content %}
+<h2>송금</h2>
+
+<div class="balance-box">
+  <div class="muted">현재 잔액</div>
+  <div class="amount">{{ '{:,}'.format(user['balance']) }}원</div>
+</div>
+
+<h3>송금하기</h3>
+<form method="post" action="{{ url_for('transfer') }}">
+  {# [보안] CSRF 토큰이 특히 중요한 폼이다. 토큰이 없으면 공격자 페이지에
+     이 폼을 숨겨두고 자동 제출시켜, 피해자가 그 페이지를 열어보는 것만으로
+     공격자에게 돈이 송금된다. #}
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="to_username">받는 사람 (사용자명)</label>
+  <input type="text" id="to_username" name="to_username" required
+         maxlength="20" pattern="[A-Za-z0-9_]+">
+
+  <label for="amount">금액 (원)</label>
+  <input type="number" id="amount" name="amount" required min="1" max="100000000">
+
+  <button type="submit">송금</button>
+</form>
+
+<h3>잔액 충전 (학습용)</h3>
+<p class="muted">
+  실제 서비스라면 PG사 결제 연동이 들어갈 자리입니다. 과제 테스트 편의를 위해
+  단순 충전 기능으로 대체했습니다.
+</p>
+<form method="post" action="{{ url_for('charge') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="charge_amount">충전 금액 (원)</label>
+  <input type="number" id="charge_amount" name="amount" required min="1" max="1000000">
+  <button type="submit" class="secondary">충전</button>
+</form>
+
+<h3>거래 내역</h3>
+{% if history %}
+  <table>
+    <tr><th>일시</th><th>구분</th><th>상대</th><th class="right">금액</th></tr>
+    {% for t in history %}
+      <tr>
+        <td class="muted">{{ t['created_at'] }}</td>
+        {% if t['sender_id'] == user['id'] %}
+          <td>보냄</td>
+          <td>{{ t['receiver_name'] }}</td>
+          <td class="right">-{{ '{:,}'.format(t['amount']) }}원</td>
+        {% else %}
+          <td>받음</td>
+          <td>{{ t['sender_name'] }}</td>
+          <td class="right price">+{{ '{:,}'.format(t['amount']) }}원</td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p class="muted">거래 내역이 없습니다.</p>
+{% endif %}
+{% endblock %}

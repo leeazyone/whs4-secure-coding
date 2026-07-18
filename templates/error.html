@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}오류 {{ code }}{% endblock %}
+{% block content %}
+{#
+  [보안] 오류 페이지에는 일반적인 메시지만 표시한다.
+  베이스 코드는 debug=True라 예외 발생 시 스택 트레이스, 파일 경로,
+  소스 코드 일부, 심지어 대화형 파이썬 콘솔까지 노출됐다.
+  상세 내용은 서버 로그에만 기록한다.
+#}
+<div class="error-page">
+  <div class="code">{{ code }}</div>
+  <p>{{ message }}</p>
+  <p><a href="{{ url_for('index') }}">홈으로 돌아가기</a></p>
+</div>
+{% endblock %}

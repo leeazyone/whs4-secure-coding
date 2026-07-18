@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}관리자{% endblock %}
+{% block content %}
+<h2>관리자 대시보드</h2>
+{# 이 페이지 전체는 @admin_required가 지킨다. role은 세션이 아니라 DB에서
+   확인하며, 권한이 없으면 403이 아니라 404를 반환해 관리자 경로의
+   존재 자체를 노출하지 않는다. #}
+
+<div class="stat-grid">
+  <div class="stat"><div class="num">{{ stats['users'] }}</div><div class="label">사용자</div></div>
+  <div class="stat"><div class="num">{{ stats['products'] }}</div><div class="label">상품</div></div>
+  <div class="stat"><div class="num">{{ stats['reports'] }}</div><div class="label">신고</div></div>
+  <div class="stat"><div class="num">{{ stats['transfers'] }}</div><div class="label">송금</div></div>
+</div>
+
+<p>
+  <a href="{{ url_for('admin_users') }}">사용자 관리</a> ·
+  <a href="{{ url_for('admin_products') }}">상품 관리</a> ·
+  <a href="{{ url_for('admin_logs') }}">감사 로그</a>
+</p>
+
+<h3>최근 신고</h3>
+{% if reports %}
+  <table>
+    <tr><th>일시</th><th>신고자</th><th>대상</th><th class="mono">대상 ID</th><th>사유</th></tr>
+    {% for r in reports %}
+      <tr>
+        <td class="muted">{{ r['created_at'] }}</td>
+        <td>{{ r['reporter_name'] }}</td>
+        <td>{{ r['target_type'] }}</td>
+        <td class="mono">{{ r['target_id'][:8] }}…</td>
+        <td>{{ r['reason'] }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p class="muted">접수된 신고가 없습니다.</p>
+{% endif %}
+{% endblock %}

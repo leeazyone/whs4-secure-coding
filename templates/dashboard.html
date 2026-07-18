@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}대시보드{% endblock %}
+{% block content %}
+<h2>대시보드</h2>
+
+<form method="get" action="{{ url_for('search') }}">
+  <input type="text" name="q" placeholder="상품 검색..." maxlength="100">
+</form>
+
+<h3>등록된 상품</h3>
+{% if products %}
+  <ul>
+    {% for product in products %}
+      <li>
+        <a href="{{ url_for('view_product', product_id=product['id']) }}">{{ product['title'] }}</a>
+        <span class="price">{{ '{:,}'.format(product['price']) }}원</span>
+        <span class="muted">· {{ product['seller_name'] }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="muted">등록된 상품이 없습니다.</p>
+{% endif %}
+<p><a href="{{ url_for('new_product') }}">＋ 새 상품 등록</a></p>
+
+<h3>전체 채팅</h3>
+{#
+  [보안 수정 #6] 베이스 코드는 여기서 이렇게 했다:
+    socket.emit('send_message', { 'username': "{{ user.username }}", ... })
+  신원을 클라이언트가 정해 보내니, 브라우저 콘솔에서 username만
+  'admin'으로 바꾸면 관리자 사칭이 성립했다.
+
+  이제 data-user-id는 "내가 보낸 메시지"를 화면에서 구분 표시하는 용도로만
+  쓴다. 서버는 이 값을 신뢰하지 않고 세션에서 신원을 판단한다.
+#}
+<div id="chat-root" data-user-id="{{ current_user['id'] }}">
+  <ul id="messages">
+    {% for m in recent_messages %}
+      <li{% if m['username'] == current_user['username'] %} class="mine"{% endif %}>
+        <span class="who">{{ m['username'] }}:</span><span>{{ m['content'] }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+  <div class="chat-row">
+    <input id="chat_input" type="text" placeholder="메시지를 입력하세요" maxlength="1000">
+    <button id="chat_send" type="button">전송</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

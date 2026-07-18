@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Tiny Market{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {#
+    베이스 코드는 socket.io를 cdnjs에서 로드했다. 외부 CDN은 공급망 공격
+    표면이므로 로컬로 내려받아 서빙한다. CSP도 script-src 'self'로 조였다.
+  #}
+  <script src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
+</head>
+<body>
+  <nav>
+    {% if current_user %}
+      <a href="{{ url_for('dashboard') }}">대시보드</a>
+      <a href="{{ url_for('search') }}">검색</a>
+      <a href="{{ url_for('my_products') }}">내 상품</a>
+      <a href="{{ url_for('user_list') }}">사용자</a>
+      <a href="{{ url_for('transfer') }}">송금</a>
+      <a href="{{ url_for('profile') }}">프로필</a>
+      {% if current_user['role'] == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}">관리자</a>
+      {% endif %}
+      <a href="{{ url_for('logout') }}">로그아웃</a>
+      <span class="spacer"></span>
+      {% if current_user['role'] == 'admin' %}
+        <span class="badge admin">ADMIN</span>
+      {% endif %}
+      <span class="badge">{{ current_user['username'] }} · {{ '{:,}'.format(current_user['balance']) }}원</span>
+    {% else %}
+      <a href="{{ url_for('index') }}">홈</a>
+      <a href="{{ url_for('login') }}">로그인</a>
+      <a href="{{ url_for('register') }}">회원가입</a>
+    {% endif %}
+  </nav>
+  <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for message in messages %}
+            {# Jinja2 자동 이스케이프가 적용된다. |safe를 절대 붙이지 말 것. #}
+            <li class="flash">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

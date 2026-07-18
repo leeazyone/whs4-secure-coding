@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}사용자 관리{% endblock %}
+{% block content %}
+<h2>사용자 관리</h2>
+<p class="muted"><a href="{{ url_for('admin_dashboard') }}">← 관리자 대시보드</a></p>
+
+<table>
+  <tr>
+    <th>사용자명</th><th>권한</th><th>상태</th><th>신고</th>
+    <th class="right">잔액</th><th>가입일</th><th>조치</th>
+  </tr>
+  {% for u in users %}
+    <tr>
+      <td><a href="{{ url_for('view_user', user_id=u['id']) }}">{{ u['username'] }}</a></td>
+      <td>{% if u['role'] == 'admin' %}<span class="badge admin">ADMIN</span>{% else %}user{% endif %}</td>
+      <td><span class="status status-{{ u['status'] }}">{{ u['status'] }}</span></td>
+      <td>{{ u['report_count'] }}</td>
+      <td class="right">{{ '{:,}'.format(u['balance']) }}원</td>
+      <td class="muted">{{ u['created_at'][:10] }}</td>
+      <td>
+        {% if u['id'] == current_user['id'] %}
+          <span class="muted">본인</span>
+        {% else %}
+          {# 상태 변경은 POST + CSRF 토큰. GET 링크로 만들면 관리자가
+             악성 링크를 클릭하는 것만으로 임의 사용자가 차단된다. #}
+          <form method="post" class="inline-form"
+                action="{{ url_for('admin_set_user_status', user_id=u['id']) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select name="status">
+              <option value="active"  {% if u['status'] == 'active'  %}selected{% endif %}>active</option>
+              <option value="dormant" {% if u['status'] == 'dormant' %}selected{% endif %}>dormant</option>
+              <option value="blocked" {% if u['status'] == 'blocked' %}selected{% endif %}>blocked</option>
+            </select>
+            <button type="submit" class="inline">변경</button>
+          </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+{% endblock %}

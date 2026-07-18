@@ -1,0 +1,17 @@
+*.db
+*.pptx
+__pycache__
+
+# 가상환경
+.venv/
+venv/
+
+# 비밀 설정 (SECRET_KEY 등) - 절대 커밋 금지
+.env
+
+# 로그
+*.log
+logs/
+
+# 업로드된 사용자 파일
+static/uploads/

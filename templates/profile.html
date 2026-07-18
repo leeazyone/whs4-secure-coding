@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}프로필{% endblock %}
+{% block content %}
+<h2>프로필 관리</h2>
+
+<table>
+  <tr><th>사용자명</th><td>{{ user['username'] }}</td></tr>
+  <tr><th>가입일</th><td>{{ user['created_at'] }}</td></tr>
+  <tr><th>잔액</th><td class="price">{{ '{:,}'.format(user['balance']) }}원</td></tr>
+  <tr><th>상태</th>
+    <td><span class="status status-{{ user['status'] }}">{{ user['status'] }}</span></td>
+  </tr>
+</table>
+
+<h3>소개글</h3>
+<form method="post" action="{{ url_for('profile') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <textarea name="bio" rows="4" maxlength="500"
+            placeholder="자기소개를 입력하세요">{{ user['bio'] or '' }}</textarea>
+  <button type="submit">소개글 업데이트</button>
+</form>
+
+<h3>비밀번호 변경</h3>
+<form method="post" action="{{ url_for('change_password') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  {# [보안] 민감 작업 재인증. 현재 비밀번호를 확인하지 않으면 세션이
+     탈취됐을 때 곧바로 계정을 빼앗긴다. #}
+  <label for="current_password">현재 비밀번호</label>
+  <input type="password" id="current_password" name="current_password" required
+         autocomplete="current-password">
+
+  <label for="new_password">새 비밀번호</label>
+  <input type="password" id="new_password" name="new_password" required
+         minlength="8" autocomplete="new-password">
+  <p class="muted">최소 8자</p>
+
+  <button type="submit">비밀번호 변경</button>
+</form>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}사용자 목록{% endblock %}
+{% block content %}
+<h2>사용자 목록</h2>
+{% if users %}
+  <ul>
+    {% for u in users %}
+      <li>
+        <a href="{{ url_for('view_user', user_id=u['id']) }}">{{ u['username'] }}</a>
+        {% if u['id'] != current_user['id'] %}
+          · <a href="{{ url_for('direct_chat', user_id=u['id']) }}">1:1 채팅</a>
+        {% endif %}
+        {% if u['bio'] %}
+          <div class="muted">{{ u['bio'] }}</div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="muted">사용자가 없습니다.</p>
+{% endif %}
+{% endblock %}

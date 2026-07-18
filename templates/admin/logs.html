@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}감사 로그{% endblock %}
+{% block content %}
+<h2>감사 로그</h2>
+<p class="muted"><a href="{{ url_for('admin_dashboard') }}">← 관리자 대시보드</a></p>
+<p class="muted">
+  체크리스트 "신고 활동이 감사 로그로 기록되는지" 항목에 대응합니다.
+  로그인·신고·송금·관리자 조치 등 주요 행위를 기록하며,
+  비밀번호나 토큰 같은 민감값은 기록하지 않습니다.
+</p>
+
+<table>
+  <tr><th>일시</th><th>행위자</th><th>행위</th><th class="mono">대상</th><th>상세</th><th>IP</th></tr>
+  {% for l in logs %}
+    <tr>
+      <td class="muted">{{ l['created_at'] }}</td>
+      <td>{{ l['actor_name'] or '시스템' }}</td>
+      <td>{{ l['action'] }}</td>
+      <td class="mono">{% if l['target'] %}{{ l['target'][:8] }}…{% endif %}</td>
+      <td>{{ l['detail'] or '' }}</td>
+      <td class="muted">{{ l['ip'] or '' }}</td>
+    </tr>
+  {% endfor %}
+</table>
+{% endblock %}

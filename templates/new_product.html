@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}새 상품 등록{% endblock %}
+{% block content %}
+<h2>상품 등록</h2>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="title">상품명</label>
+  <input type="text" id="title" name="title" required maxlength="100">
+
+  <label for="description">상품 설명</label>
+  <textarea id="description" name="description" rows="5" required
+            maxlength="2000"></textarea>
+
+  <label for="price">가격 (원)</label>
+  {# 베이스 코드는 type="text"였고 서버도 TEXT 컬럼에 그대로 저장해
+     "-1000"이나 "abc"가 통과했다. type="number"는 어디까지나 편의 기능이고,
+     실제 방어는 서버의 validate_positive_int()가 한다. #}
+  <input type="number" id="price" name="price" required min="1" max="100000000">
+
+  <button type="submit">등록하기</button>
+</form>
+{% endblock %}

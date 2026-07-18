@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ partner['username'] }}님과의 채팅{% endblock %}
+{% block content %}
+<h2>{{ partner['username'] }}님과의 1:1 채팅</h2>
+<p class="muted">
+  <a href="{{ url_for('view_user', user_id=partner['id']) }}">프로필 보기</a> ·
+  <a href="{{ url_for('report', target_type='user', target_id=partner['id']) }}">신고하기</a>
+</p>
+
+<div id="chat-root"
+     data-user-id="{{ current_user['id'] }}"
+     data-receiver-id="{{ partner['id'] }}">
+  <ul id="messages">
+    {% for m in history %}
+      <li{% if m['sender_id'] == current_user['id'] %} class="mine"{% endif %}>
+        <span class="who">{{ m['username'] }}:</span><span>{{ m['content'] }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+  <div class="chat-row">
+    <input id="chat_input" type="text" placeholder="메시지를 입력하세요" maxlength="1000">
+    <button id="chat_send" type="button">전송</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}
