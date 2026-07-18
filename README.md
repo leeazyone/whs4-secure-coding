@@ -2,9 +2,6 @@
 
 WhiteHat School 4기 · 시큐어 코딩 과제
 
-유효곤 강사님이 제공한 베이스 코드([ugonfor/secure-coding](https://github.com/ugonfor/secure-coding))를
-감사하여 보안 약점을 식별·수정하고, 과제 요구사항에 맞춰 기능을 확장한 중고거래 플랫폼입니다.
-
 ---
 
 ## 환경 설정
@@ -13,11 +10,6 @@ WhiteHat School 4기 · 시큐어 코딩 과제
 
 - Linux (Ubuntu 22.04에서 개발·검증) 또는 WSL2
 - Python 3.10 이상
-
-> **참고 — conda 대신 venv를 사용합니다.**
-> 강의 슬라이드는 miniconda를 안내하지만, 최신 conda는 Anaconda 기본 채널의
-> 이용약관 동의를 요구합니다. 파이썬 표준 도구인 `venv`는 그런 제약이 없고
-> 설정도 단순해 이쪽을 택했습니다.
 
 ### 설치
 
@@ -37,7 +29,7 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-### `.env` 설정 (필수)
+### `.env` 설정
 
 `SECRET_KEY`를 반드시 채워야 합니다. 비어 있으면 앱이 기동을 거부합니다.
 
@@ -111,26 +103,6 @@ python tests/test_security.py
 python tests/test_race_condition.py
 ```
 
-### 대조 실험: 취약한 구현은 어떻게 뚫리는가
-
-`BEGIN IMMEDIATE` 트랜잭션이 왜 필요한지 직접 확인할 수 있습니다.
-아래는 본 프로젝트 코드가 아니라, 방어가 없을 때 무슨 일이 벌어지는지
-재현하기 위한 독립 데모입니다.
-
-```bash
-python tests/demo_vulnerable_transfer.py
-```
-
-```
-잔액 10,000원 계정에서 10,000원 송금을 동시에 12건 요청
-
-[취약한 구현]                    [본 프로젝트]
-성공 12건 / 거부 0건             성공 1건 / 거부 11건
-공격자 잔액 -110,000원           공격자 잔액 0원
-피해자 수령 120,000원            피해자 수령 10,000원
-→ 잔액 1만원으로 12만원 송금      → 정상
-```
-
 ---
 
 ## 구현 기능
@@ -191,7 +163,6 @@ secure-coding/
 ## 보안 요약
 
 베이스 코드 감사에서 **14개 취약점**을 식별하고 전부 수정했습니다.
-상세 내역과 before/after 코드는 [`docs/security-log.md`](docs/security-log.md)를 참고하세요.
 
 주요 항목:
 
@@ -209,15 +180,4 @@ secure-coding/
 | 외부 CDN 의존 | 로컬 호스팅 + CSP `script-src 'self'` |
 
 이미 안전했던 부분: SQL 인젝션(파라미터 바인딩), XSS(Jinja2 autoescape).
-새 기능을 추가할 때 이 습관을 유지하는 것이 핵심이었습니다.
 
----
-
-## 알려진 제약
-
-학습용 로컬 환경 기준이라 다음은 미적용입니다. 운영 배포 시 필요합니다.
-
-- **HTTPS/WSS** — 리버스 프록시(nginx) + TLS 종단 처리 필요
-- **Rate Limiter 저장소** — 현재 메모리 기반. 다중 프로세스 환경에서는 Redis 등 공유 저장소 필요
-- **DB 사용자 권한** — SQLite는 파일 기반이라 권한 개념이 없음. PostgreSQL 등 전환 시 최소 권한 적용
-- **송금 결제 연동** — PG사 연동 대신 학습용 충전 기능으로 대체
